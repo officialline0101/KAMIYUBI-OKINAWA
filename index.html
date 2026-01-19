@@ -997,7 +997,7 @@
             saveMenuSelection(menuType);
         }
 
-        function applyPreviousSelection() {
+function applyPreviousSelection() {
             const savedMenu = localStorage.getItem('selectedMenu') || '';
             const savedSymptoms = JSON.parse(localStorage.getItem('selectedSymptoms') || '[]');
             const savedIrradiations = JSON.parse(localStorage.getItem('selectedIrradiations') || '[]');
@@ -1007,35 +1007,42 @@
                 return;
             }
 
-    // ✅ ご来店回数（2回目以降）を自動で選択
-    const repeatVisitButton = document.getElementById('repeatVisit');
-    if (repeatVisitButton) {
-        selectVisit(repeatVisitButton);
-    }
+            // ✅ ご来店回数（2回目以降）を自動で選択
+            const repeatVisitButton = document.getElementById('repeatVisit');
+            if (repeatVisitButton) {
+                selectVisit(repeatVisitButton);
+            }
 
             // ✅ 前回の選択状態を初期化
-            // 1. オプションの active クラスを全て外す
             document.querySelectorAll('.irradiations button.active').forEach(btn => {
                 btn.classList.remove('active');
             });
-
-            // 2. selectedIrradiations をリセット
             localStorage.setItem('selectedIrradiations', JSON.stringify([]));
 
-            // ✅ メニュー表示
+            // ✅ メニュータブ（一般・学生など）を表示
             if (savedMenu) {
                 showMenu(savedMenu);
             }
 
-            // ✅ メニュー再選択
-            savedSymptoms.forEach(symptomId => {
-                const symptomButton = document.querySelector(`button[onclick*="selectSymptom"][onclick*="'${symptomId}'"]`);
-                if (symptomButton && !symptomButton.classList.contains('active')) {
-                    symptomButton.click();
-                }
-            });
+            // ✅ メニューボタンの再選択（ここを修正）
+            if (savedSymptoms.length > 0) {
+                // 画面上のすべての症状ボタンを取得
+                const allButtons = document.querySelectorAll('.symptoms button');
+                
+                savedSymptoms.forEach(savedText => {
+                    allButtons.forEach(btn => {
+                        // 保存された文字とボタンの文字が一致したらクリック
+                        if (btn.innerText.trim() === savedText.trim()) {
+                            // 既に選択状態（active）でなければクリックする
+                            if (!btn.classList.contains('active')) {
+                                btn.click();
+                            }
+                        }
+                    });
+                });
+            }
 
-            // ✅ オプション再選択（初期化済なので安心）
+            // ✅ オプション再選択
             savedIrradiations.forEach(irradiationId => {
                 const irradiationButton = document.getElementById(irradiationId);
                 if (irradiationButton && !irradiationButton.classList.contains('active')) {
@@ -1043,7 +1050,7 @@
                 }
             });
 
-            // ✅ ここでカレンダーへスクロール
+            // ✅ カレンダーへスクロール
             const targetElement = document.getElementById('calendar1');
             if (targetElement) {
                 targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1177,8 +1184,10 @@ function updateDisplayInfo() {
             // ローカルストレージに保存する配列を取得
             let selectedSymptoms = JSON.parse(localStorage.getItem('selectedSymptoms') || '[]');
 
-            // 選択した症状をローカルストレージに保存（1つだけ保持）
-            selectedSymptoms = [treatmentId];
+// 選択した症状をローカルストレージに保存（1つだけ保持）
+            // 修正：IDではなく、ボタンに書かれている文字を保存する
+            const buttonText = button.innerText.trim(); 
+            selectedSymptoms = [buttonText];
             localStorage.setItem('selectedSymptoms', JSON.stringify(selectedSymptoms));
 
             // 選択されたオプションを取得
