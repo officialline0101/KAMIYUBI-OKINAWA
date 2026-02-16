@@ -1609,9 +1609,11 @@ const times = [
                         continue;
                     }
 
-                    // ここで終了時間を使った条件処理を行う
-                    // 例えば、リアルタイムで既に過ぎた時間帯は×にする
-                    if (slotStart < now) {
+// リアルタイムから2時間後（ミリ秒で計算：2時間 × 60分 × 60秒 × 1000）の時間を算出
+                    const limitTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+
+                    // スロット開始時間が、現在時刻の2時間後よりも前であれば×にする
+                    if (slotStart < limitTime) {
                         cell.textContent = '✕';
                         cell.classList.add('unavailable');
                         continue;
@@ -1808,3 +1810,4 @@ const times = [
 </body>
 
 </html>
+
